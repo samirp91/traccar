@@ -23,7 +23,8 @@
       SELECT create_hypertable(
         'tc_actions',
         'actiontime',
-        migrate_data => TRUE
+        migrate_data => TRUE,
+        if_not_exists => TRUE
       );
 
       CREATE INDEX IF NOT EXISTS tc_actions_id_idx ON tc_actions(id);
