@@ -71,7 +71,7 @@ public class UserResource extends BaseObjectResource<User> {
     @GET
     public Stream<User> get(
             @QueryParam("userId") long userId, @QueryParam("deviceId") long deviceId,
-            @QueryParam("excludeAttributes") boolean excludeAttributes) throws StorageException {
+            @QueryParam("excludeAttributes") boolean excludeAttributes, @QueryParam("email") String email) throws StorageException {
         var conditions = new LinkedList<Condition>();
         if (userId > 0) {
             permissionsService.checkUser(getUserId(), userId);
@@ -83,6 +83,11 @@ public class UserResource extends BaseObjectResource<User> {
             permissionsService.checkManager(getUserId());
             conditions.add(new Condition.Permission(User.class, Device.class, deviceId).excludeGroups());
         }
+        if (email != null && !email.isEmpty()) {
+            permissionsService.checkManager(getUserId());
+            conditions.add(new Condition.Equals("email", email));
+        }
+
         Columns columns = excludeAttributes ? new Columns.Exclude("attributes") : new Columns.All();
         return storage.getObjectsStream(baseClass, new Request(
                 columns, Condition.merge(conditions), new Order("name")));
